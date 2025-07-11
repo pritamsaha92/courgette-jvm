@@ -3,16 +3,15 @@ version '6.18.1'
 
 apply plugin: 'java'
 apply plugin: 'maven-publish'
-apply plugin: 'signing'
 
 compileJava {
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    sourceCompatibility = 11     // keep Java 11 per previous change
+    targetCompatibility = 11
 }
 
 ext {
     cucumberVersion       = '7.20.1'
-    testNGVersion         = '7.9.0'
+    testNGVersion         = '7.8.0'
     jacksonVersion        = '2.17.0'
     httpcomponentsVersion = '4.5.13'
     extentreportVersion   = '5.0.3'
@@ -25,42 +24,38 @@ repositories {
 }
 
 dependencies {
-    compile "io.cucumber:cucumber-core:$cucumberVersion"
-    compile "io.cucumber:cucumber-java:$cucumberVersion"
-    compile "io.cucumber:cucumber-java8:$cucumberVersion"
-    compile "io.cucumber:cucumber-junit:$cucumberVersion"
-    compile("io.cucumber:cucumber-testng:$cucumberVersion") {
+    implementation "io.cucumber:cucumber-core:$cucumberVersion"
+    implementation "io.cucumber:cucumber-java:$cucumberVersion"
+    implementation "io.cucumber:cucumber-java8:$cucumberVersion"
+    implementation "io.cucumber:cucumber-junit:$cucumberVersion"
+    implementation ("io.cucumber:cucumber-testng:$cucumberVersion") {
         exclude group: 'com.google.guava'
         exclude group: 'org.testng'
     }
-    compile "org.testng:testng:$testNGVersion"
-    compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jacksonVersion"
-    compile "com.fasterxml.jackson.module:jackson-module-parameter-names:$jacksonVersion"
-    compile "org.apache.httpcomponents:httpclient:$httpcomponentsVersion"
-    compile "org.apache.httpcomponents:httpmime:$httpcomponentsVersion"
-    compile "com.aventstack:extentreports:$extentreportVersion"
-    compile "com.github.spullara.mustache.java:compiler:$mustacheVersion"
-    compile "com.google.code.gson:gson:$gsonVersion"
+    implementation "org.testng:testng:$testNGVersion"
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jacksonVersion"
+    implementation "com.fasterxml.jackson.module:jackson-module-parameter-names:$jacksonVersion"
+    implementation "org.apache.httpcomponents:httpclient:$httpcomponentsVersion"
+    implementation "org.apache.httpcomponents:httpmime:$httpcomponentsVersion"
+    implementation "com.aventstack:extentreports:$extentreportVersion"
+    implementation "com.github.spullara.mustache.java:compiler:$mustacheVersion"
+    implementation "com.google.code.gson:gson:$gsonVersion"
 }
 
-task buildJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
+task sourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
     from sourceSets.main.allSource
 }
 
 task javadocJar(type: Jar) {
-    classifier = 'javadoc'
+    archiveClassifier.set('javadoc')
     from javadoc
 }
 
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
 artifacts {
-    archives buildJar, javadocJar, sourcesJar
+    archives sourcesJar
+    archives javadocJar
 }
 
 jar {
@@ -73,7 +68,8 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-            artifact buildJar
+            artifact sourcesJar
+            artifact javadocJar
 
             pom {
                 name        = 'courgette-jvm'
@@ -96,18 +92,15 @@ publishing {
             }
         }
     }
+
     repositories {
         maven {
-            name        = 'GitHubPackages'
-            url         = uri("https://maven.pkg.github.com/pritamsaha92/courgette-jvm")
+            name = 'GitHubPackages'
+            url  = uri("https://maven.pkg.github.com/pritamsaha92/courgette-jvm")
             credentials {
                 username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
                 password = project.findProperty("gpr.key")  ?: System.getenv("TOKEN")
             }
         }
     }
-}
-
-signing {
-    sign publishing.publications.mavenJava
 }
