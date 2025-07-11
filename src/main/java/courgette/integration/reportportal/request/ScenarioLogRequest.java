@@ -66,7 +66,6 @@ public class ScenarioLogRequest {
                 stepMessage += "\n" + step.getResult().getErrorMessage(); 
             }
             logBody.addProperty("message", stepMessage);
-            logBody.addProperty("message", step.getKeyword() + step.getName() + toStatusName(step.getResult()));
             logBody.addProperty("level", toLevel(step.getResult()));
 
             addImageAttachment(logBody, step.getEmbeddings(), fileAttachments);
