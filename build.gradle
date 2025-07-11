@@ -1,9 +1,8 @@
-group 'io.github.prashant-ramcharan'
+group 'com.github.pritamsaha92'
 version '6.18.1'
 
 apply plugin: 'java'
 apply plugin: 'maven-publish'
-apply plugin: 'maven'
 apply plugin: 'signing'
 
 compileJava {
@@ -12,13 +11,13 @@ compileJava {
 }
 
 ext {
-    cucumberVersion = '7.20.1'
-    testNGVersion = '7.9.0'
-    jacksonVersion = '2.17.0'
+    cucumberVersion       = '7.20.1'
+    testNGVersion         = '7.9.0'
+    jacksonVersion        = '2.17.0'
     httpcomponentsVersion = '4.5.13'
-    extentreportVersion = '5.0.3'
-    mustacheVersion = '0.9.6'
-    gsonVersion = '2.11.0'
+    extentreportVersion   = '5.0.3'
+    mustacheVersion       = '0.9.6'
+    gsonVersion           = '2.11.0'
 }
 
 repositories {
@@ -66,7 +65,7 @@ artifacts {
 
 jar {
     manifest {
-        attributes 'Automatic-Module-Name': 'prashant.ramcharan.courgette.jvm'
+        attributes 'Automatic-Module-Name': 'com.github.pritamsaha92.courgette.jvm'
     }
 }
 
@@ -75,52 +74,40 @@ publishing {
         mavenJava(MavenPublication) {
             from components.java
             artifact buildJar
+
+            pom {
+                name        = 'courgette-jvm'
+                description = 'Fork of courgette-jvm with custom fixes by pritamsaha92'
+                url         = 'https://github.com/pritamsaha92/courgette-jvm'
+
+                scm {
+                    connection          = 'scm:git:git://github.com/pritamsaha92/courgette-jvm.git'
+                    developerConnection = 'scm:git:ssh://github.com/pritamsaha92/courgette-jvm.git'
+                    url                 = 'https://github.com/pritamsaha92/courgette-jvm'
+                }
+
+                developers {
+                    developer {
+                        id    = 'pritamsaha92'
+                        name  = 'Pritam Saha'
+                        email = 'pritampro.ju@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name        = 'GitHubPackages'
+            url         = uri("https://maven.pkg.github.com/pritamsaha92/courgette-jvm")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key")  ?: System.getenv("TOKEN")
+            }
         }
     }
 }
 
 signing {
-    sign configurations.archives
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-            pom.project {
-                name 'Courgette JVM'
-                packaging 'jar'
-                description 'Multi-threaded | Parallel Cucumber-JVM | Parallelize your Java Cucumber tests on a feature level or on a scenario level.'
-                url 'https://github.com/prashant-ramcharan/courgette-jvm'
-
-                scm {
-                    url 'https://github.com/prashant-ramcharan/courgette-jvm'
-                }
-
-                licenses {
-                    license {
-                        name 'MIT License'
-                        url 'https://opensource.org/licenses/MIT'
-                    }
-                }
-
-                developers {
-                    developer {
-                        id 'prashant-ramcharan'
-                        name 'Prashant Ramcharan'
-                        email 'info@prashant-ramcharan.co.uk'
-                    }
-                }
-            }
-        }
-    }
+    sign publishing.publications.mavenJava
 }

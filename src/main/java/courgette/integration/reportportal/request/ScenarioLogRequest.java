@@ -32,7 +32,7 @@ public class ScenarioLogRequest {
 
         final JsonArray logArray = new JsonArray();
 
-        addHooks(logArray, scenario.getBefore(), launchId, scenarioId, startTime, -1000, fileAttachments);
+        // addHooks(logArray, scenario.getBefore(), launchId, scenarioId, startTime, -1000, fileAttachments);
         addSteps(logArray, scenario, launchId, scenarioId, startTime, fileAttachments);
         addHooks(logArray, scenario.getAfter(), launchId, scenarioId, startTime, 1000, fileAttachments);
 
@@ -61,6 +61,11 @@ public class ScenarioLogRequest {
             logBody.addProperty("launchUuid", launchId);
             logBody.addProperty("itemUuid", scenarioId);
             logBody.addProperty("time", String.valueOf(stepTime));
+            String stepMessage = step.getKeyword() + step.getName() + toStatusName(step.getResult());
+            if (step.getResult().getErrorMessage() != null && !step.getResult().getErrorMessage().isEmpty()) {
+                stepMessage += "\n" + step.getResult().getErrorMessage(); 
+            }
+            logBody.addProperty("message", stepMessage);
             logBody.addProperty("message", step.getKeyword() + step.getName() + toStatusName(step.getResult()));
             logBody.addProperty("level", toLevel(step.getResult()));
 
@@ -82,7 +87,11 @@ public class ScenarioLogRequest {
             logBody.addProperty("launchUuid", launchId);
             logBody.addProperty("itemUuid", scenarioId);
             logBody.addProperty("time", String.valueOf(startTime.minusMillis(hook.getResult().getDuration() - timeOffset)));
-            logBody.addProperty("message", hook.getLocation() + toStatusName(hook.getResult()));
+            String hookMessage = hook.getLocation() + toStatusName(hook.getResult());
+            if (hook.getResult().getErrorMessage() != null && !hook.getResult().getErrorMessage().isEmpty()) {
+                hookMessage += "\n" + hook.getResult().getErrorMessage();
+            }
+            logBody.addProperty("message", hookMessage);
             logBody.addProperty("level", toLevel(hook.getResult()));
 
             addImageAttachment(logBody, hook.getEmbeddings(), fileAttachments);
