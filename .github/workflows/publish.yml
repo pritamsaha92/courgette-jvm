@@ -1,10 +1,9 @@
-name: Publish to GitHub Packages
+name: Publish to GitHub Packages (Java 8)
 
 on:
   push:
-    branches:
-      - main           # runs on any commit pushed to main
-  workflow_dispatch:  # still allow manual dispatch
+    branches: [ master ]      # every commit to master
+  workflow_dispatch:
 
 jobs:
   publish:
@@ -32,4 +31,7 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
 
       - name: Publish to GitHub Packages
+        env:
+          USERNAME: ${{ secrets.GPR_USER }}
+          TOKEN:    ${{ secrets.GPR_KEY }}
         run: ./gradlew clean publish --no-daemon

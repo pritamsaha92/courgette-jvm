@@ -63,10 +63,9 @@ public class ScenarioLogRequest {
             logBody.addProperty("time", String.valueOf(stepTime));
             String stepMessage = step.getKeyword() + step.getName() + toStatusName(step.getResult());
             if (step.getResult().getErrorMessage() != null && !step.getResult().getErrorMessage().isEmpty()) {
-                stepMessage += "\n" + step.getResult().getErrorMessage(); 
+                stepMessage += "\n<br><span style='color:red;'>" + step.getResult().getErrorMessage() + "</span>";
             }
             logBody.addProperty("message", stepMessage);
-            logBody.addProperty("message", step.getKeyword() + step.getName() + toStatusName(step.getResult()));
             logBody.addProperty("level", toLevel(step.getResult()));
 
             addImageAttachment(logBody, step.getEmbeddings(), fileAttachments);
@@ -89,7 +88,7 @@ public class ScenarioLogRequest {
             logBody.addProperty("time", String.valueOf(startTime.minusMillis(hook.getResult().getDuration() - timeOffset)));
             String hookMessage = hook.getLocation() + toStatusName(hook.getResult());
             if (hook.getResult().getErrorMessage() != null && !hook.getResult().getErrorMessage().isEmpty()) {
-                hookMessage += "\n" + hook.getResult().getErrorMessage();
+                hookMessage += "\n<br><span style='color:red;'>" + hook.getResult().getErrorMessage() + "</span>";
             }
             logBody.addProperty("message", hookMessage);
             logBody.addProperty("level", toLevel(hook.getResult()));
